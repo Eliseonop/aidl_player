@@ -1,0 +1,22 @@
+[
+    {
+        "merged": "com.tcontur.aidl.aidl-library-release-11:/layout/custom_dialog.xml",
+        "source": "com.tcontur.aidl.aidl-library-core-1.15.0-1:/layout/custom_dialog.xml"
+    },
+    {
+        "merged": "com.tcontur.aidl.aidl-library-release-11:/layout/ime_secondary_split_test_activity.xml",
+        "source": "com.tcontur.aidl.aidl-library-core-1.15.0-1:/layout/ime_secondary_split_test_activity.xml"
+    },
+    {
+        "merged": "com.tcontur.aidl.aidl-library-release-11:/layout/ime_base_split_test_activity.xml",
+        "source": "com.tcontur.aidl.aidl-library-core-1.15.0-1:/layout/ime_base_split_test_activity.xml"
+    },
+    {
+        "merged": "com.tcontur.aidl.aidl-library-release-11:/layout/notification_template_part_time.xml",
+        "source": "com.tcontur.aidl.aidl-library-core-1.15.0-1:/layout/notification_template_part_time.xml"
+    },
+    {
+        "merged": "com.tcontur.aidl.aidl-library-release-11:/layout/notification_template_part_chronometer.xml",
+        "source": "com.tcontur.aidl.aidl-library-core-1.15.0-1:/layout/notification_template_part_chronometer.xml"
+    }
+]

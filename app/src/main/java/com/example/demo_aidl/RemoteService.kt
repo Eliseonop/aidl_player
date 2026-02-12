@@ -52,6 +52,7 @@ class RemoteService : AidlServiceBase() {
             is Command.GetGenres -> handleGetGenres()
             is Command.GetStatus -> handleGetStatus()
             is Command.GetCurrentSong -> handleGetCurrentSong()
+            is Command.GetProgress -> handleGetProgress()
             is Command.Ping -> notifyAll(Response.Pong.toProtocol())
             else -> {
                 Log.w("RemoteService", "⚠️ Comando no implementado: $cmd")
@@ -241,11 +242,16 @@ class RemoteService : AidlServiceBase() {
         }
 
         val song = currentSongs[currentSongIndex]
+        val currentPos = mediaPlayer?.currentPosition?.toLong() ?: 0
+        val duration = mediaPlayer?.duration?.toLong() ?: 0
+
         val response = Response.Playing(
             genre = currentGenre,
             songName = song.title,
             index = currentSongIndex,
-            total = currentSongs.size
+            total = currentSongs.size,
+            currentPositionMs = currentPos,
+            durationMs = duration
         )
         notifyAll(response.toProtocol())
     }
@@ -257,14 +263,27 @@ class RemoteService : AidlServiceBase() {
             else -> "STOPPED"
         }
 
+        val currentPos = mediaPlayer?.currentPosition?.toLong() ?: 0
+        val duration = mediaPlayer?.duration?.toLong() ?: 0
+
         val response = Response.Status(
             state = state,
             genre = if (currentGenre.isNotEmpty()) currentGenre else null,
             songName = if (currentSongs.isNotEmpty()) currentSongs.getOrNull(currentSongIndex)?.title else null,
             index = if (currentSongs.isNotEmpty()) currentSongIndex else null,
             total = if (currentSongs.isNotEmpty()) currentSongs.size else null,
-            volume = 100
+            volume = 100,
+            currentPositionMs = currentPos,
+            durationMs = duration
         )
+        notifyAll(response.toProtocol())
+    }
+
+    private fun handleGetProgress() {
+        val currentPos = mediaPlayer?.currentPosition?.toLong() ?: 0
+        val duration = mediaPlayer?.duration?.toLong() ?: 0
+
+        val response = Response.Progress(currentPos, duration)
         notifyAll(response.toProtocol())
     }
 
@@ -285,11 +304,15 @@ class RemoteService : AidlServiceBase() {
             isPlaying = true
             currentTitle = song.title
 
+            val duration = mediaPlayer?.duration?.toLong() ?: 0
+
             val response = Response.Playing(
                 genre = currentGenre,
                 songName = song.title,
                 index = currentSongIndex,
-                total = currentSongs.size
+                total = currentSongs.size,
+                currentPositionMs = 0,
+                durationMs = duration
             )
             val protocol = response.toProtocol()
             notifyAll(protocol)

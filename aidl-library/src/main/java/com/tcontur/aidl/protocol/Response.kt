@@ -16,9 +16,11 @@ sealed class Response {
         val genre: String,
         val songName: String,
         val index: Int,
-        val total: Int
+        val total: Int,
+        val currentPositionMs: Long = 0,
+        val durationMs: Long = 0
     ) : Response() {
-        override fun toProtocol() = "PLAYING|$genre|$songName|$index|$total"
+        override fun toProtocol() = "PLAYING|$genre|$songName|$index|$total|$currentPositionMs|$durationMs"
     }
 
     object Paused : Response() {
@@ -63,10 +65,12 @@ sealed class Response {
         val songName: String?,
         val index: Int?,
         val total: Int?,
-        val volume: Int
+        val volume: Int,
+        val currentPositionMs: Long = 0,
+        val durationMs: Long = 0
     ) : Response() {
         override fun toProtocol() = buildString {
-            append("STATUS|$state|${genre ?: ""}|${songName ?: ""}|${index ?: 0}|${total ?: 0}|$volume")
+            append("STATUS|$state|${genre ?: ""}|${songName ?: ""}|${index ?: 0}|${total ?: 0}|$volume|$currentPositionMs|$durationMs")
         }
     }
 
@@ -109,7 +113,9 @@ sealed class Response {
                     genre = parts.getOrNull(1) ?: return null,
                     songName = parts.getOrNull(2) ?: return null,
                     index = parts.getOrNull(3)?.toIntOrNull() ?: return null,
-                    total = parts.getOrNull(4)?.toIntOrNull() ?: return null
+                    total = parts.getOrNull(4)?.toIntOrNull() ?: return null,
+                    currentPositionMs = parts.getOrNull(5)?.toLongOrNull() ?: 0,
+                    durationMs = parts.getOrNull(6)?.toLongOrNull() ?: 0
                 )
 
                 "PAUSED" -> Paused
@@ -135,7 +141,9 @@ sealed class Response {
                     songName = parts.getOrNull(3)?.takeIf { it.isNotEmpty() },
                     index = parts.getOrNull(4)?.toIntOrNull(),
                     total = parts.getOrNull(5)?.toIntOrNull(),
-                    volume = parts.getOrNull(6)?.toIntOrNull() ?: 100
+                    volume = parts.getOrNull(6)?.toIntOrNull() ?: 100,
+                    currentPositionMs = parts.getOrNull(7)?.toLongOrNull() ?: 0,
+                    durationMs = parts.getOrNull(8)?.toLongOrNull() ?: 0
                 )
 
                 "ERROR" -> Error(parts.drop(1).joinToString("|"))

@@ -364,19 +364,21 @@ ACCION|RECURSO|PARAMETRO1|PARAMETRO2|...
 | **Previous** | `PREV\|GENRE\|genre` | `PREV\|GENRE\|Rock` | Canción anterior del género |
 | **Get Playlist** | `GET\|PLAYLIST\|genre` | `GET\|PLAYLIST\|Rock` | Obtiene lista de canciones del género |
 | **Get Genres** | `GET\|GENRES` | `GET\|GENRES` | Obtiene lista de géneros disponibles |
-| **Get Status** | `GET\|STATUS` | `GET\|STATUS` | Obtiene estado actual del reproductor |
-| **Get Current** | `GET\|CURRENT_SONG` | `GET\|CURRENT_SONG` | Obtiene canción actual |
+| **Get Status** | `GET\|STATUS` | `GET\|STATUS` | Obtiene estado actual del reproductor (incluye duración/progreso) |
+| **Get Current** | `GET\|CURRENT_SONG` | `GET\|CURRENT_SONG` | Obtiene canción actual (incluye duración/progreso) |
+| **Get Progress** | `GET\|PROGRESS` | `GET\|PROGRESS` | Obtiene solo progreso de reproducción actual |
 
 ### Respuestas del Servicio
 
 | Respuesta | Formato | Ejemplo |
 |-----------|---------|---------|
-| **Playing** | `PLAYING\|genre\|songName\|index\|total` | `PLAYING\|Rock\|Bohemian Rhapsody\|0\|10` |
+| **Playing** | `PLAYING\|genre\|songName\|index\|total\|posMs\|durMs` | `PLAYING\|Rock\|Bohemian Rhapsody\|0\|10\|45000\|354000` |
 | **Paused** | `PAUSED` | `PAUSED` |
 | **Stopped** | `STOPPED` | `STOPPED` |
+| **Progress** | `PROGRESS\|currentMs\|durationMs` | `PROGRESS\|45000\|354000` |
 | **Playlist** | `PLAYLIST\|genre\|song1\|song2\|...` | `PLAYLIST\|Rock\|Song1\|Song2\|Song3` |
 | **Genres** | `GENRES\|genre1\|genre2\|...` | `GENRES\|Rock\|Jazz\|Salsa\|Cumbia` |
-| **Status** | `STATUS\|state\|genre\|song\|idx\|tot\|vol` | `STATUS\|PLAYING\|Rock\|Song1\|0\|10\|100` |
+| **Status** | `STATUS\|state\|genre\|song\|idx\|tot\|vol\|posMs\|durMs` | `STATUS\|PLAYING\|Rock\|Song1\|0\|10\|100\|45000\|354000` |
 | **Error** | `ERROR\|mensaje` | `ERROR\|Canción no encontrada` |
 | **Pong** | `PONG` | `PONG` |
 
@@ -390,9 +392,85 @@ Command.Next("Rock")                → "NEXT|GENRE|Rock"
 Command.GetGenres                   → "GET|GENRES"
 
 // Respuestas
-Response.Playing(...)               ← "PLAYING|Rock|Song|0|10"
+Response.Playing(...)               ← "PLAYING|Rock|Song|0|10|45000|354000"
 Response.Paused                     ← "PAUSED"
 Response.Genres(listOf("Rock"...))  ← "GENRES|Rock|Jazz|..."
+Response.Progress(45000, 354000)    ← "PROGRESS|45000|354000"
+```
+
+### 🎵 Duración y Progreso de Reproducción
+
+**Nuevas capacidades v0.1.0:**
+
+Todas las respuestas relacionadas con reproducción ahora incluyen:
+- **currentPositionMs**: Posición actual en milisegundos
+- **durationMs**: Duración total de la canción en milisegundos
+
+#### Respuestas que incluyen progreso:
+
+```kotlin
+// Al reproducir una canción
+Response.Playing(
+    genre = "Rock",
+    songName = "Bohemian Rhapsody",
+    index = 0,
+    total = 10,
+    currentPositionMs = 45000,    // 45 segundos
+    durationMs = 354000           // 5:54 minutos
+)
+
+// Al solicitar el estado completo
+Response.Status(
+    state = "PLAYING",
+    genre = "Rock",
+    songName = "Bohemian Rhapsody",
+    index = 0,
+    total = 10,
+    volume = 100,
+    currentPositionMs = 45000,
+    durationMs = 354000
+)
+
+// Solo progreso (actualización en tiempo real)
+Response.Progress(
+    currentMs = 45000,
+    durationMs = 354000
+)
+```
+
+#### Cómo obtener el progreso:
+
+```kotlin
+// Opción 1: Al conectarse (automático)
+// El servicio envía STATUS completo con progreso
+
+// Opción 2: Solicitar progreso explícitamente
+repository.getProgress()  // Envía GET|PROGRESS
+
+// Opción 3: Escuchar respuestas PLAYING
+repository.onMessageReceived { message ->
+    when (val response = Response.fromProtocol(message)) {
+        is Response.Playing -> {
+            val currentSec = response.currentPositionMs / 1000
+            val durationSec = response.durationMs / 1000
+            println("Progreso: $currentSec / $durationSec segundos")
+        }
+    }
+}
+```
+
+#### Formatear tiempo para UI:
+
+```kotlin
+fun formatTime(milliseconds: Long): String {
+    val minutes = (milliseconds / 1000) / 60
+    val seconds = (milliseconds / 1000) % 60
+    return "%d:%02d".format(minutes, seconds)
+}
+
+// Uso:
+val currentTime = formatTime(response.currentPositionMs)  // "0:45"
+val duration = formatTime(response.durationMs)            // "5:54"
 ```
 
 ---
@@ -480,7 +558,9 @@ class AidlRepository @Inject constructor(
         val genre: String,
         val songName: String,
         val index: Int,
-        val total: Int
+        val total: Int,
+        val currentPositionMs: Long = 0,
+        val durationMs: Long = 0
     )
 
     override fun onMessageReceived(message: String) {
@@ -492,7 +572,9 @@ class AidlRepository @Inject constructor(
                     genre = response.genre,
                     songName = response.songName,
                     index = response.index,
-                    total = response.total
+                    total = response.total,
+                    currentPositionMs = response.currentPositionMs,
+                    durationMs = response.durationMs
                 )
                 _isPaused.value = false
             }
@@ -578,7 +660,23 @@ fun MediaPlayerScreen(viewModel: MediaPlayerViewModel) {
 
         // Canción actual
         playingInfo?.let {
-            Text("${it.genre} - ${it.songName} (${it.index + 1}/${it.total})")
+            Column {
+                Text("${it.genre} - ${it.songName} (${it.index + 1}/${it.total})")
+
+                // Mostrar duración y progreso
+                if (it.durationMs > 0) {
+                    val currentMin = (it.currentPositionMs / 1000) / 60
+                    val currentSec = (it.currentPositionMs / 1000) % 60
+                    val durationMin = (it.durationMs / 1000) / 60
+                    val durationSec = (it.durationMs / 1000) % 60
+
+                    Text("⏱ %d:%02d / %d:%02d".format(currentMin, currentSec, durationMin, durationSec))
+
+                    // Barra de progreso
+                    val progress = it.currentPositionMs.toFloat() / it.durationMs.toFloat()
+                    LinearProgressIndicator(progress = progress, modifier = Modifier.fillMaxWidth())
+                }
+            }
         }
 
         // Controles
@@ -652,7 +750,8 @@ stop()
 next(genre: String)
 previous(genre: String)
 getGenres()
-getStatus()
+getStatus()                          // Incluye duración y posición actual
+getProgress()                        // Solo duración y posición
 getPlaylist(genre: String)
 ```
 

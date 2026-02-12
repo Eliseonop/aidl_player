@@ -86,19 +86,28 @@ Cliente conecta → Servicio automáticamente envía:
 - Clientes reciben notificaciones de cambios
 - Estado consistente en todas las apps conectadas
 
-#### Comandos Nuevos
+**8. Duración y Progreso de Reproducción** ⭐ NEW
+- `Response.Playing` incluye `currentPositionMs` y `durationMs`
+- `Response.Status` incluye progreso actual de reproducción
+- `Response.Progress` para obtener solo el progreso
+- Comando `GET|PROGRESS` para solicitar progreso en tiempo real
+
+#### Comandos Disponibles
 
 | Comando | Formato | Descripción |
 |---------|---------|-------------|
-| `GET\|STATUS` | `GET\|STATUS` | Obtiene estado completo del reproductor |
-| `GET\|CURRENT_SONG` | `GET\|CURRENT_SONG` | Obtiene canción actual |
+| `GET\|STATUS` | `GET\|STATUS` | Obtiene estado completo del reproductor (incluye progreso) |
+| `GET\|CURRENT_SONG` | `GET\|CURRENT_SONG` | Obtiene canción actual (incluye progreso) |
+| `GET\|PROGRESS` | `GET\|PROGRESS` | Obtiene solo progreso de reproducción |
 | `PLAY\|INDEX` | `PLAY\|INDEX\|genre\|index` | Reproduce por índice |
 
-#### Respuestas Nuevas
+#### Respuestas Disponibles
 
 | Respuesta | Formato | Descripción |
 |-----------|---------|-------------|
-| `STATUS` | `STATUS\|state\|genre\|song\|idx\|tot\|vol` | Estado completo |
+| `PLAYING` | `PLAYING\|genre\|song\|idx\|tot\|posMs\|durMs` | Reproduciendo (con duración) |
+| `STATUS` | `STATUS\|state\|genre\|song\|idx\|tot\|vol\|posMs\|durMs` | Estado completo (con progreso) |
+| `PROGRESS` | `PROGRESS\|currentMs\|durationMs` | Solo progreso actual |
 | `GENRES` | `GENRES\|genre1\|genre2\|...` | Lista de géneros |
 
 #### Uso de la API
@@ -117,6 +126,13 @@ when (val response = Response.fromProtocol(message)) {
     is Response.Playing -> {
         val genre = response.genre
         val songName = response.songName
+        val currentMin = (response.currentPositionMs / 1000) / 60
+        val durationMin = (response.durationMs / 1000) / 60
+        println("$genre - $songName [$currentMin:xx / $durationMin:xx]")
+    }
+    is Response.Progress -> {
+        val progress = response.currentMs.toFloat() / response.durationMs.toFloat()
+        println("Progreso: ${(progress * 100).toInt()}%")
     }
     is Response.Genres -> {
         val genres = response.genres

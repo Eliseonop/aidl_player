@@ -1,0 +1,16 @@
+com.tcontur.aidl.aidl-library-tracing-1.2.0-0 C:\Users\edu\.gradle\caches\8.13\transforms\0ab15a8ca4c32bff4b1714187d6d01f7\transformed\tracing-1.2.0\res
+com.tcontur.aidl.aidl-library-core-1.15.0-1 C:\Users\edu\.gradle\caches\8.13\transforms\10f5a5e68e8f8abfc6a4d040f0821b47\transformed\core-1.15.0\res
+com.tcontur.aidl.aidl-library-profileinstaller-1.3.0-2 C:\Users\edu\.gradle\caches\8.13\transforms\1985d7070dcc931eff908743276e8d2e\transformed\profileinstaller-1.3.0\res
+com.tcontur.aidl.aidl-library-lifecycle-runtime-2.6.2-3 C:\Users\edu\.gradle\caches\8.13\transforms\362d63bf0a84cf1894cc1dac5cc6c994\transformed\lifecycle-runtime-2.6.2\res
+com.tcontur.aidl.aidl-library-annotation-experimental-1.4.1-4 C:\Users\edu\.gradle\caches\8.13\transforms\6b11cb27d026a7d5d2a626e77c7167dc\transformed\annotation-experimental-1.4.1\res
+com.tcontur.aidl.aidl-library-core-runtime-2.2.0-5 C:\Users\edu\.gradle\caches\8.13\transforms\709f0905f37231937dc6cc19590e8175\transformed\core-runtime-2.2.0\res
+com.tcontur.aidl.aidl-library-core-ktx-1.15.0-6 C:\Users\edu\.gradle\caches\8.13\transforms\8fe38c60249281c2371f0a20ca759af9\transformed\core-ktx-1.15.0\res
+com.tcontur.aidl.aidl-library-startup-runtime-1.1.1-7 C:\Users\edu\.gradle\caches\8.13\transforms\bd6679dca1b7cb81411dd8c7a25f202a\transformed\startup-runtime-1.1.1\res
+com.tcontur.aidl.aidl-library-pngs-8 C:\Users\edu\AndroidStudioProjects\demo_aidl\aidl-library\build\generated\res\pngs\release
+com.tcontur.aidl.aidl-library-resValues-9 C:\Users\edu\AndroidStudioProjects\demo_aidl\aidl-library\build\generated\res\resValues\release
+com.tcontur.aidl.aidl-library-updated_navigation_xml-10 C:\Users\edu\AndroidStudioProjects\demo_aidl\aidl-library\build\generated\updated_navigation_xml\release
+com.tcontur.aidl.aidl-library-mergeReleaseResources-11 C:\Users\edu\AndroidStudioProjects\demo_aidl\aidl-library\build\intermediates\incremental\release\mergeReleaseResources\merged.dir
+com.tcontur.aidl.aidl-library-mergeReleaseResources-12 C:\Users\edu\AndroidStudioProjects\demo_aidl\aidl-library\build\intermediates\incremental\release\mergeReleaseResources\stripped.dir
+com.tcontur.aidl.aidl-library-release-13 C:\Users\edu\AndroidStudioProjects\demo_aidl\aidl-library\build\intermediates\merged_res\release\mergeReleaseResources
+com.tcontur.aidl.aidl-library-main-14 C:\Users\edu\AndroidStudioProjects\demo_aidl\aidl-library\src\main\res
+com.tcontur.aidl.aidl-library-release-15 C:\Users\edu\AndroidStudioProjects\demo_aidl\aidl-library\src\release\res

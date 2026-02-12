@@ -1,0 +1,6 @@
+[
+    {
+        "merged": "com.tcontur.aidl.aidl-library-release-11:/drawable-v21/notification_action_background.xml",
+        "source": "com.tcontur.aidl.aidl-library-core-1.15.0-1:/drawable-v21/notification_action_background.xml"
+    }
+]

@@ -8,10 +8,6 @@ package com.tcontur.aidl.protocol
 sealed class Command {
     abstract fun toProtocol(): String
 
-    // ═══════════════════════════════════════════════════════════
-    // PLAYBACK
-    // ═══════════════════════════════════════════════════════════
-
     data class PlaySong(val genre: String, val songName: String) : Command() {
         override fun toProtocol() = "PLAY|SONG|$genre|$songName"
     }
@@ -44,10 +40,6 @@ sealed class Command {
         override fun toProtocol() = "PREV|GENRE|$genre"
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // VOLUME
-    // ═══════════════════════════════════════════════════════════
-
     data class SetVolume(val level: Int) : Command() {
         override fun toProtocol() = "VOLUME|SET|$level"
     }
@@ -60,17 +52,11 @@ sealed class Command {
         override fun toProtocol() = "VOLUME|DOWN"
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // SEEK
-    // ═══════════════════════════════════════════════════════════
 
     data class SeekTo(val positionMs: Long) : Command() {
         override fun toProtocol() = "SEEK|POSITION|$positionMs"
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // QUERY
-    // ═══════════════════════════════════════════════════════════
 
     data class GetPlaylist(val genre: String) : Command() {
         override fun toProtocol() = "GET|PLAYLIST|$genre"
@@ -86,6 +72,10 @@ sealed class Command {
 
     object GetGenres : Command() {
         override fun toProtocol() = "GET|GENRES"
+    }
+
+    object GetProgress : Command() {
+        override fun toProtocol() = "GET|PROGRESS"
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -141,6 +131,7 @@ sealed class Command {
                     "CURRENT_SONG" -> GetCurrentSong
                     "STATUS" -> GetStatus
                     "GENRES" -> GetGenres
+                    "PROGRESS" -> GetProgress
                     else -> null
                 }
 
