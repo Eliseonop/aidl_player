@@ -475,7 +475,7 @@ val duration = formatTime(response.durationMs)            // "5:54"
 
 ---
 
-## 🚀 Integración en Otra App
+## 🚀 Integración en Otra App - (APP TCONTUR SIRVE COMO CLIENTE)
 
 ### Paso 1: Copiar aidl-library
 
